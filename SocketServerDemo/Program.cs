@@ -1,15 +1,15 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
+using System.Data;
+using System;
 using System.Text;
-using System.Threading;
 
 namespace SocketServerDemo
 {
+    delegate void SocketCreator(Socket socket);
     class Program
     {
         static Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private static byte[] result = new byte[1024];
 
         static void Main(string[] args)
         {
@@ -18,61 +18,69 @@ namespace SocketServerDemo
 
         public static void SocketServer()
         {
-            System.Console.WriteLine("Server started.");
             int port = 2692;
             socket.Bind(new IPEndPoint(IPAddress.Any, port));
             socket.Listen(100);
-            Thread myThread = new Thread(ListenClientConnect);
-            myThread.Start();
-            System.Console.ReadLine();
+            System.Threading.Thread thread = new System.Threading.Thread(begin);
+            thread.Start();
+            Console.WriteLine("Server started.");
+            Console.ReadLine();
         }
 
-        private static void ListenClientConnect()
+        public static void begin()
         {
             while (true)
             {
-                Socket clientScoket = socket.Accept();
-                Thread receivedThread = new Thread(ReceiveMessage);
-                receivedThread.Start(clientScoket);
+                Socket newSocket = socket.Accept();
+                SocketCreator creator = new SocketCreator(NewSocket);
+                creator.BeginInvoke(newSocket, null, null);
             }
         }
 
-        private static void ReceiveMessage(object clientSocket)
+        public static void NewSocket(Socket newSocket)
         {
-            Socket client = (Socket)clientSocket;
             while (true)
             {
                 try
                 {
-                    int receiveNumber = client.Receive(result);
-                    if(receiveNumber == 0)
+                    byte[] by = new byte[1024];
+                    int length = 0;
+                    // newSocket.ReceiveTimeout = 50000;
+                    //读取字符串
+                    length = newSocket.Receive(by);
+                    string content = Encoding.UTF8.GetString(by, 0, length);
+                    while (length == 1024)
                     {
-                        return;
+                        length = newSocket.Receive(by);
+                        content += Encoding.UTF8.GetString(by, 0, length);
                     }
-                    string receive, reply;
-                    receive = Encoding.UTF8.GetString(result, 0, receiveNumber);
-                    if (receive.Equals("@heartbeat"))
+
+                    string reply;
+
+                    if (content.Length >= 1)
                     {
-                        reply = "@heartbeat@end\r\n";
-                        Console.WriteLine(receive);
+
+                        if ("@heartbeat".Equals(content))
+                        {
+                            Console.WriteLine(content);
+                            reply = "@heartbeat";
+                        } else
+                        {
+                            Console.WriteLine("Message from Client: " + content);
+                            reply = "From Server: Message Received.";
+                        }
+                        newSocket.Send(Encoding.UTF8.GetBytes(reply));
+
                     }
-                    else
-                    {
-                        reply = "消息已接收到@end\r\n";
-                        Console.WriteLine("接收到客户端{0}消息：{1}", client.RemoteEndPoint.ToString(), receive);
-                    }
-                    byte[] bs = Encoding.UTF8.GetBytes(reply);
-                    client.Send(bs, bs.Length, 0);
-                    Console.ReadLine();
+                    //文本读取完成
                 }
-                catch (Exception e)
+                catch(Exception ex)
                 {
-                    Console.WriteLine(e.Message);
-                    client.Shutdown(SocketShutdown.Both);
-                    client.Close();
-                    break;
+                    Console.WriteLine(ex.Message);
+                    Console.ReadLine();
                 }
             }
         }
+
     }
 }
