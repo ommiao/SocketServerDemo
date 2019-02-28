@@ -78,6 +78,7 @@ namespace SocketServerDemo
                 {
                     Console.WriteLine(ex.Message);
                     Console.ReadLine();
+                    break;
                 }
             }
         }
