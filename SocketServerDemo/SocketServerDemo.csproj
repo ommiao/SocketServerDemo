@@ -51,11 +51,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="socket\Action.cs" />
-    <Compile Include="socket\message\ActionWrapper.cs" />
-    <Compile Include="socket\message\HeartBeatWrapper.cs" />
-    <Compile Include="socket\message\MessageBase.cs" />
-    <Compile Include="socket\message\MessageWrapper.cs" />
-    <Compile Include="socket\message\WrapperBody.cs" />
+    <Compile Include="socket\message\action\ActionWrapper.cs" />
+    <Compile Include="socket\message\chat\MessageBody.cs" />
+    <Compile Include="socket\message\heartbeat\HeartBeatWrapper.cs" />
+    <Compile Include="socket\message\base\MessageBase.cs" />
+    <Compile Include="socket\message\base\AbstractMessageWrapper.cs" />
+    <Compile Include="socket\message\base\WrapperBody.cs" />
+    <Compile Include="socket\message\chat\MessageWrapper.cs" />
     <Compile Include="utils\JsonUtil.cs" />
   </ItemGroup>
   <ItemGroup>

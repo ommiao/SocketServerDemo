@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace SocketServerDemo.socket.message
 {
-    abstract class MessageWrapper<M, T> where T : WrapperBody where M : MessageWrapper<M, T>
+    abstract class AbstractMessageWrapper<M, T> where T : WrapperBody where M : AbstractMessageWrapper<M, T>
     {
         private MessageBase message = new MessageBase();
 
-        public MessageWrapper()
+        public AbstractMessageWrapper()
         {
             
         }
 
-        public MessageWrapper(T body)
+        public AbstractMessageWrapper(T body)
         {
             message.Body = body.toJson();
         }
 
-        public MessageWrapper(String message)
+        public AbstractMessageWrapper(String message)
         {
             this.message = MessageBase.fromJson<MessageBase>(message);
         }
@@ -45,6 +45,11 @@ namespace SocketServerDemo.socket.message
         public string GetAction()
         {
             return message.Action;
+        }
+
+        public void SetBody(T body)
+        {
+            message.Body = body.toJson();
         }
 
     }

@@ -34,6 +34,7 @@ namespace SocketServerDemo.utils
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return default(T);
             }
         }

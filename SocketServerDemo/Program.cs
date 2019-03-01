@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System;
 using System.Text;
 using SocketServerDemo.socket.message;
+using SocketServerDemo.socket.message.chat;
 
 namespace SocketServerDemo
 {
@@ -11,6 +12,7 @@ namespace SocketServerDemo
     {
 
         static HeartBeatWrapper HEART_BEAT_WRAPPER;
+        static MessageWrapper MESSAGE_WRAPPER;
 
         static Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -23,6 +25,10 @@ namespace SocketServerDemo
         private static void InitHeartBeatData()
         {
             HEART_BEAT_WRAPPER = new HeartBeatWrapper().Action(SocketServerDemo.socket.Action.ACTION_HEART_BEAT);
+            MESSAGE_WRAPPER = new MessageWrapper().Action(SocketServerDemo.socket.Action.ACTION_MESSAGE_SEND);
+            MessageBody body = new MessageBody();
+            body.Content = "Message From Server.";
+            MESSAGE_WRAPPER.SetBody(body);
         }
 
         public static void SocketServer()
@@ -77,7 +83,7 @@ namespace SocketServerDemo
                         else
                         {
                             Console.WriteLine("Message from Client: " + content);
-                            reply = "From Server: Message Received.";
+                            reply = MESSAGE_WRAPPER.GetStringMessage();
                         }
                         newSocket.Send(Encoding.UTF8.GetBytes(reply));
 

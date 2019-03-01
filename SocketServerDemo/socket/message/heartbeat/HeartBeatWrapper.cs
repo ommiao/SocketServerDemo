@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SocketServerDemo.socket.message
 {
-    class HeartBeatWrapper : MessageWrapper<HeartBeatWrapper, WrapperBody>
+    class HeartBeatWrapper : AbstractMessageWrapper<HeartBeatWrapper, WrapperBody>
     {
         public HeartBeatWrapper()
         {
