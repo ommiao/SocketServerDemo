@@ -28,6 +28,7 @@ namespace SocketServerDemo
             MESSAGE_WRAPPER = new MessageWrapper().Action(SocketServerDemo.socket.Action.ACTION_MESSAGE_SEND);
             MessageBody body = new MessageBody();
             body.Content = "Message From Server.";
+            body.Nickname = "Server";
             MESSAGE_WRAPPER.SetBody(body);
         }
 
@@ -86,7 +87,7 @@ namespace SocketServerDemo
                             reply = MESSAGE_WRAPPER.GetStringMessage();
                         }
                         newSocket.Send(Encoding.UTF8.GetBytes(reply));
-
+                        Console.WriteLine("Reply to Client: " + reply);
                     }
                     //文本读取完成
                 }

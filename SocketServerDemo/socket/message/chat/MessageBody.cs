@@ -10,5 +10,6 @@ namespace SocketServerDemo.socket.message.chat
     {
         public string Content { get; set; }
 
+        public string Nickname { get; set; }
     }
 }
