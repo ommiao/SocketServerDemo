@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocketServerDemo.entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace SocketServerDemo.socket.message
 {
-    class MessageBase
+    class MessageBase : JavaBean
     {
-        private string msgNo { get; set; }
+        public string MsgNo { get; set; }
 
-        private string action { get; set; }
+        public string Action { get; set; }
 
-        private string body { get; set; }
+        public string Body { get; set; }
 
-        private string replyTo { get; set; }
+        public string ReplyTo { get; set; }
 
     }
 }

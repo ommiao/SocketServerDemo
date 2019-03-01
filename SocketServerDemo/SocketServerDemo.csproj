@@ -50,6 +50,9 @@
     <Compile Include="entity\JavaBean.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="socket\Action.cs" />
+    <Compile Include="socket\message\ActionWrapper.cs" />
+    <Compile Include="socket\message\HeartBeatWrapper.cs" />
     <Compile Include="socket\message\MessageBase.cs" />
     <Compile Include="socket\message\MessageWrapper.cs" />
     <Compile Include="socket\message\WrapperBody.cs" />

@@ -1,19 +1,28 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Data;
 using System;
 using System.Text;
+using SocketServerDemo.socket.message;
 
 namespace SocketServerDemo
 {
     delegate void SocketCreator(Socket socket);
     class Program
     {
+
+        static HeartBeatWrapper HEART_BEAT_WRAPPER;
+
         static Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         static void Main(string[] args)
         {
+            InitHeartBeatData();
             SocketServer();
+        }
+
+        private static void InitHeartBeatData()
+        {
+            HEART_BEAT_WRAPPER = new HeartBeatWrapper().Action(SocketServerDemo.socket.Action.ACTION_HEART_BEAT);
         }
 
         public static void SocketServer()
@@ -59,12 +68,13 @@ namespace SocketServerDemo
 
                     if (content.Length >= 1)
                     {
-
-                        if ("@heartbeat".Equals(content))
+                        ActionWrapper wrapper = new ActionWrapper(content);
+                        if (SocketServerDemo.socket.Action.ACTION_HEART_BEAT.Equals(wrapper.GetAction()))
                         {
-                            Console.WriteLine(content);
-                            reply = "@heartbeat";
-                        } else
+                            Console.WriteLine("@heartbeat: " + content);
+                            reply = HEART_BEAT_WRAPPER.GetStringMessage();
+                        }
+                        else
                         {
                             Console.WriteLine("Message from Client: " + content);
                             reply = "From Server: Message Received.";
