@@ -4,6 +4,9 @@ using System;
 using System.Text;
 using SocketServerDemo.socket.message;
 using SocketServerDemo.socket.message.chat;
+using SocketServerDemo.socket;
+using SocketServerDemo.socket.message.user;
+using SocketServerDemo.socket.service;
 
 namespace SocketServerDemo
 {
@@ -24,11 +27,14 @@ namespace SocketServerDemo
 
         private static void InitHeartBeatData()
         {
-            HEART_BEAT_WRAPPER = new HeartBeatWrapper().Action(SocketServerDemo.socket.Action.ACTION_HEART_BEAT);
-            MESSAGE_WRAPPER = new MessageWrapper().Action(SocketServerDemo.socket.Action.ACTION_MESSAGE_SEND);
+            HEART_BEAT_WRAPPER = new HeartBeatWrapper().Action(ActionDefine.ACTION_HEART_BEAT);
+            MESSAGE_WRAPPER = new MessageWrapper().Action(ActionDefine.ACTION_MESSAGE_SEND);
             MessageBody body = new MessageBody();
             body.Content = "Message From Server.";
-            body.Nickname = "Server";
+            User user = new User();
+            user.Nickname = "Server";
+            user.UserCode = "Server";
+            body.User = user;
             MESSAGE_WRAPPER.SetBody(body);
         }
 
@@ -71,23 +77,27 @@ namespace SocketServerDemo
                         content += Encoding.UTF8.GetString(by, 0, length);
                     }
 
-                    string reply;
-
                     if (content.Length >= 1)
                     {
                         ActionWrapper wrapper = new ActionWrapper(content);
-                        if (SocketServerDemo.socket.Action.ACTION_HEART_BEAT.Equals(wrapper.GetAction()))
+                        string action = wrapper.GetAction();
+                        if (ActionDefine.ACTION_HEART_BEAT.Equals(action))
                         {
                             Console.WriteLine("@heartbeat: " + content);
-                            reply = HEART_BEAT_WRAPPER.GetStringMessage();
+                            string reply = HEART_BEAT_WRAPPER.GetStringMessage();
+                            newSocket.Send(Encoding.UTF8.GetBytes(reply));
                         }
-                        else
+                        else if(ActionDefine.ACTION_MESSAGE_SEND.Equals(action))
                         {
                             Console.WriteLine("Message from Client: " + content);
-                            reply = MESSAGE_WRAPPER.GetStringMessage();
+                            HandleMessageReceived(newSocket, new MessageWrapper(content));
+
                         }
-                        newSocket.Send(Encoding.UTF8.GetBytes(reply));
-                        Console.WriteLine("Reply to Client: " + reply);
+                        else if (ActionDefine.ACTION_USER_CHANGED.Equals(action))
+                        {
+                            Console.WriteLine("User Changed: " + content);
+                            HandleUserChanged(newSocket, new UserWrapper(content));
+                        }
                     }
                     //文本读取完成
                 }
@@ -97,6 +107,47 @@ namespace SocketServerDemo
                     Console.ReadLine();
                     break;
                 }
+            }
+        }
+
+        private static void HandleMessageReceived(Socket socket, MessageWrapper wrapper)
+        {
+            string reply = MESSAGE_WRAPPER.GetStringMessage();
+            socket.Send(Encoding.UTF8.GetBytes(reply));
+            User user = wrapper.GetWrapperBody().User;
+            Console.WriteLine("Reply to Client. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
+        }
+
+        private static void HandleUserChanged(Socket socket, UserWrapper wrapper)
+        {
+            UserBody body = wrapper.GetWrapperBody();
+            User user = body.ChangedUser;
+            if (body.isUserLogon())
+            {
+                Client client = new Client();
+                client.Socket = socket;
+                client.User = user;
+                ClientManager.AddClient(client);
+                UserWrapper replyWrapper = new UserWrapper().Action(ActionDefine.ACTION_USER_CHANGED);
+                UserBody replyBody = new UserBody();
+                replyBody.ChangedUser = body.ChangedUser;
+                replyBody.Event = EventDefine.EVENT_USER_LOGON_SUCCESS;
+                replyWrapper.SetBody(replyBody);
+                string reply = replyWrapper.GetStringMessage();
+                socket.Send(Encoding.UTF8.GetBytes(reply));
+                Console.WriteLine("User Added. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
+            }
+            else if (body.isUserLogout())
+            {
+                ClientManager.RemoveClient(user.UserCode);
+                UserWrapper replyWrapper = new UserWrapper().Action(ActionDefine.ACTION_USER_CHANGED);
+                UserBody replyBody = new UserBody();
+                replyBody.ChangedUser = body.ChangedUser;
+                replyBody.Event = EventDefine.EVENT_USER_LOGOUT_SUCCESS;
+                replyWrapper.SetBody(replyBody);
+                string reply = replyWrapper.GetStringMessage();
+                socket.Send(Encoding.UTF8.GetBytes(reply));
+                Console.WriteLine("User Quited. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
             }
         }
 

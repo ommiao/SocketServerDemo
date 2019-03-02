@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocketServerDemo.socket.message.user;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,6 @@ namespace SocketServerDemo.socket.message.chat
     {
         public string Content { get; set; }
 
-        public string Nickname { get; set; }
+        public User User { get; set; }
     }
 }

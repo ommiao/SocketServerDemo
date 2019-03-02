@@ -8,7 +8,7 @@ namespace SocketServerDemo.socket.message
 {
     class HeartBeatWrapper : AbstractMessageWrapper<HeartBeatWrapper, WrapperBody>
     {
-        public HeartBeatWrapper()
+        public HeartBeatWrapper() : base()
         {
         }
 
