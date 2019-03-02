@@ -50,7 +50,7 @@
     <Compile Include="entity\JavaBean.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="socket\ActionDefine.cs" />
+    <Compile Include="socket\Action.cs" />
     <Compile Include="socket\message\action\ActionWrapper.cs" />
     <Compile Include="socket\message\chat\MessageBody.cs" />
     <Compile Include="socket\message\heartbeat\HeartBeatWrapper.cs" />
@@ -58,12 +58,6 @@
     <Compile Include="socket\message\base\AbstractMessageWrapper.cs" />
     <Compile Include="socket\message\base\WrapperBody.cs" />
     <Compile Include="socket\message\chat\MessageWrapper.cs" />
-    <Compile Include="socket\message\user\EventDefine.cs" />
-    <Compile Include="socket\message\user\User.cs" />
-    <Compile Include="socket\message\user\UserBody.cs" />
-    <Compile Include="socket\message\user\UserWrapper.cs" />
-    <Compile Include="socket\service\Client.cs" />
-    <Compile Include="socket\service\ClientManager.cs" />
     <Compile Include="utils\JsonUtil.cs" />
   </ItemGroup>
   <ItemGroup>
