@@ -10,6 +10,16 @@ namespace SocketServerDemo.socket.message
     class MessageWrapper : AbstractMessageWrapper<MessageWrapper, MessageBody>
     {
 
+        public MessageWrapper() : base()
+        {
+
+        }
+
+        public MessageWrapper(string message) : base(message)
+        {
+
+        }
+
         public void Content(MessageBody body)
         {
             SetBody(body);
