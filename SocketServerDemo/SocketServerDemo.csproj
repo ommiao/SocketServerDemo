@@ -53,6 +53,7 @@
     <Compile Include="socket\ActionDefine.cs" />
     <Compile Include="socket\message\action\ActionWrapper.cs" />
     <Compile Include="socket\message\chat\MessageBody.cs" />
+    <Compile Include="socket\message\heartbeat\HeartBeatBody.cs" />
     <Compile Include="socket\message\heartbeat\HeartBeatWrapper.cs" />
     <Compile Include="socket\message\base\MessageBase.cs" />
     <Compile Include="socket\message\base\AbstractMessageWrapper.cs" />

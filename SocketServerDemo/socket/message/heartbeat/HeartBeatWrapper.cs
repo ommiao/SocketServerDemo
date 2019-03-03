@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SocketServerDemo.socket.message
+﻿namespace SocketServerDemo.socket.message.heartbeat
 {
-    class HeartBeatWrapper : AbstractMessageWrapper<HeartBeatWrapper, WrapperBody>
+    class HeartBeatWrapper : AbstractMessageWrapper<HeartBeatWrapper, HeartBeatBody>
     {
         public HeartBeatWrapper() : base()
         {
