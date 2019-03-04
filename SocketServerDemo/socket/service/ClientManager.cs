@@ -7,23 +7,43 @@ namespace SocketServerDemo.socket.service
 {
     class ClientManager
     {
+        private static object lockObj = new object();
+
         private static Dictionary<string, Client> allClients = new Dictionary<string, Client>();
+
+        public static Client GetClient(string userCode)
+        {
+            return allClients[userCode];
+        }
 
         public static void AddClient(Client client)
         {
-            RemoveClient(client.User.UserCode);
-            allClients.Add(client.User.UserCode, client);
+            lock (lockObj)
+            {
+                allClients.Add(client.UserCode, client);
+            }
+        }
+
+        public static void SetUser(string userCode, User user)
+        {
+            if (!ContainsClient(userCode))
+            {
+                return;
+            }
+            lock (lockObj)
+            {
+                allClients[userCode].User = user;
+            }
         }
 
         public static void RemoveClient(string userCode)
         {
-            if (ContainsClient(userCode))
+            lock (lockObj)
             {
-                if (allClients[userCode].Socket != null)
+                if (ContainsClient(userCode))
                 {
-                    allClients[userCode].Socket.Close();
+                    allClients.Remove(userCode);
                 }
-                allClients.Remove(userCode);
             }
         }
 
@@ -38,8 +58,11 @@ namespace SocketServerDemo.socket.service
             {
                 return;
             }
-            Client client = allClients[userCode];
-            client.HeartBeatTime = System.DateTime.Now;
+            lock (lockObj)
+            {
+                Client client = allClients[userCode];
+                client.HeartBeatTime = System.DateTime.Now;
+            }
         }
 
         public static List<User> GetAllUser()
@@ -52,18 +75,6 @@ namespace SocketServerDemo.socket.service
             return users;
         }
 
-        private static void RemoveDiedClient()
-        {
-            foreach(var userCode in allClients.Keys)
-            {
-                Socket socket = allClients[userCode].Socket;
-                if (socket == null || !socket.Connected)
-                {
-                    RemoveClient(userCode);
-                }
-            }
-        }
-
         public static void DistributeMessage(string message)
         {
             DistributeMessage(null, message);
@@ -71,16 +82,18 @@ namespace SocketServerDemo.socket.service
 
         public static void DistributeMessage(string excludeUserCode, string message)
         {
-            RemoveDiedClient();
-            foreach(var userCode in allClients.Keys)
+            lock (lockObj)
             {
-                if (userCode.Equals(excludeUserCode))
+                foreach (var userCode in allClients.Keys)
                 {
-                    continue;
-                }
-                else
-                {
-                    allClients[userCode].Socket.Send(Encoding.UTF8.GetBytes(message));
+                    if (userCode.Equals(excludeUserCode))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        allClients[userCode].Socket.Send(Encoding.UTF8.GetBytes(message));
+                    }
                 }
             }
         }
