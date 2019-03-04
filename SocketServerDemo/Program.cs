@@ -66,11 +66,11 @@ namespace SocketServerDemo
                             break;
                         }
                         Client client = ClientManager.GetClient(userCode);
-                        if (client != null && (client.ConnectionTimeout() || client.DiedFlag))
+                        if (client != null && client.ConnectionTimeout())
                         {
                             newSocket.Close();
                             ClientManager.RemoveClient(userCode);
-                            Console.WriteLine("User " + userCode + " is died.");
+                            Console.WriteLine("User " + userCode + " is timeout.");
                             break;
                         }
                     }
@@ -152,6 +152,7 @@ namespace SocketServerDemo
             MessageBody broadcastBody = body;
             broadcastWrapper.SetBody(broadcastBody);
             ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
+            ClientManager.RefreshHeartBeatTime(user.UserCode);
 
             Console.WriteLine("Message Distributed. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
         }

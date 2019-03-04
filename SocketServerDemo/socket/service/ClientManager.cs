@@ -90,6 +90,10 @@ namespace SocketServerDemo.socket.service
                     {
                         continue;
                     }
+                    else if (allClients[userCode].ConnectionTimeout())
+                    {
+                        continue;
+                    }
                     else
                     {
                         allClients[userCode].Socket.Send(Encoding.UTF8.GetBytes(message));

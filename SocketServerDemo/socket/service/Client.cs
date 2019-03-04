@@ -7,6 +7,7 @@ namespace SocketServerDemo.socket.service
 {
     class Client
     {
+        private const int SECONDS_TIME_OUT = 15;
 
         public string UserCode { get; set; }
 
@@ -16,12 +17,10 @@ namespace SocketServerDemo.socket.service
 
         public DateTime HeartBeatTime { get; set; }
 
-        public bool DiedFlag { get; set; }
-
         public bool ConnectionTimeout()
         {
             TimeSpan interval = DateTime.Now - HeartBeatTime;
-            return interval.TotalSeconds > 30;
+            return interval.TotalSeconds > SECONDS_TIME_OUT;
         }
 
     }
