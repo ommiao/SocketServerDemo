@@ -21,6 +21,7 @@ namespace SocketServerDemo
 
         static void Main(string[] args)
         {
+            Logger.ShowCurrentUser();
             InitHeartBeatData();
             SocketServer();
         }
