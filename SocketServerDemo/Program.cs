@@ -22,7 +22,6 @@ namespace SocketServerDemo
         static void Main(string[] args)
         {
             Logger.Init();
-            Logger.ShowSimpleMessage("This is a simple message.");
             InitHeartBeatData();
             SocketServer();
         }
@@ -39,7 +38,8 @@ namespace SocketServerDemo
             socket.Listen(100);
             System.Threading.Thread thread = new System.Threading.Thread(begin);
             thread.Start();
-            Console.WriteLine("Server started.");
+            Logger.ShowSimpleMessage("Server started.", "Server started at Port:" + port + ".");
+            Logger.ShowCurrentUser();
         }
 
         public static void begin()

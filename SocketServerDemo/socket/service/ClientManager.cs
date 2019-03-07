@@ -75,6 +75,16 @@ namespace SocketServerDemo.socket.service
             return users;
         }
 
+        public static List< Client> GetAllClients()
+        {
+            List<Client> clients = new List<Client>();
+            foreach(var client in allClients.Values)
+            {
+                clients.Add(client);
+            }
+            return clients;
+        }
+
         public static void DistributeMessage(string message)
         {
             DistributeMessage(null, message);
