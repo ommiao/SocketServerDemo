@@ -1,4 +1,5 @@
-﻿using SocketServerDemo.socket.service;
+﻿using SocketServerDemo.socket.message.user;
+using SocketServerDemo.socket.service;
 using System;
 using System.Collections.Generic;
 
@@ -40,11 +41,100 @@ namespace SocketServerDemo.socket
 
         }
 
-        public static void ShowCurrentUser()
+        public static void ShowUserAdded(User user)
+        {
+            ShowUserChanged(user, true);
+        }
+
+        public static void ShowUserQuited(User user)
+        {
+            ShowUserChanged(user, false);
+        }
+
+        private static void ShowUserChanged(User user, bool add)
+        {
+            PrintMessageTitle("User Changed.", 3);
+            PrintTitleLine(new string[]{ "UserCode", "Nickname", "Changed Type" });
+            if (add)
+            {
+                Console.Write("│  ");
+                Console.Write(user.UserCode);
+                int userCodeLength = user.UserCode.Length;
+                PrintHorizontalSpace(38 - userCodeLength);
+                Console.Write("│  ");
+                Console.Write(user.Nickname);
+                int nicknameLength = user.Nickname.Length;
+                PrintHorizontalSpace(38 - nicknameLength);
+                Console.Write("│  ");
+                Console.Write("User Added.");
+                int length = "User Added.".Length;
+                PrintHorizontalSpace(38 - length);
+                Console.Write("│");
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.Write("│  ");
+                Console.Write(user.UserCode);
+                int userCodeLength = user.UserCode.Length;
+                PrintHorizontalSpace(38 - userCodeLength);
+                Console.Write("│  ");
+                Console.Write(user.Nickname);
+                int nicknameLength = user.Nickname.Length;
+                PrintHorizontalSpace(38 - nicknameLength);
+                Console.Write("│  ");
+                Console.Write("User Quited.");
+                int length = "User Quited.".Length;
+                PrintHorizontalSpace(38 - length);
+                Console.Write("│");
+                Console.WriteLine();
+            }
+            Console.Write("└");
+            PrintHorizontalLine(40);
+            Console.Write("┴");
+            PrintHorizontalLine(40);
+            Console.Write("┴");
+            PrintHorizontalLine(40);
+            Console.Write("┘");
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+
+        private static void PrintTitleLine(string[] titles)
+        {
+            int length = titles.Length > 3 ? 3 : titles.Length;
+            int spaces = 3 - length;
+            for(int i = 0; i < length; i++)
+            {
+                Console.Write("│");
+                Console.Write("  ");
+                Console.Write(titles[i]);
+                PrintHorizontalSpace(38 - titles[i].Length);
+            }
+            for (int i = 0; i < spaces; i++)
+            {
+                Console.Write("│");
+                PrintHorizontalSpace(40);
+            }
+            Console.Write("│");
+            Console.WriteLine();
+
+            Console.Write("├");
+            PrintHorizontalLine(40);
+            Console.Write("┼");
+            PrintHorizontalLine(40);
+            Console.Write("┼");
+            PrintHorizontalLine(40);
+            Console.Write("┤");
+            Console.WriteLine();
+        }
+
+        public static void ShowCurrentUsers()
         {
             List<Client> clients = ClientManager.GetAllClients();
             int count = clients.Count;
-            PrintMessageTitle("Current Users.", 3);
+            PrintMessageTitle("Current Users. Number:" + count + ".", 3);
+            PrintTitleLine(new string[] { "UserCode", "Nickname", "Heartbeat Time" });
             if (count > 0)
             {
                 for(int i = 0; i < count - 1; i++)
@@ -55,8 +145,8 @@ namespace SocketServerDemo.socket
             }
             else
             {
-                Console.Write("│  No User.");
-                PrintHorizontalSpace(40 - "  No User.".Length);
+                Console.Write("│");
+                PrintHorizontalSpace(40);
                 Console.Write("│");
                 PrintHorizontalSpace(40);
                 Console.Write("│");
@@ -80,24 +170,15 @@ namespace SocketServerDemo.socket
             Console.Write("│  ");
             Console.Write(client.User.UserCode);
             int userCodeLength = client.User.UserCode.Length;
-            for(int i = 0; i < 38 - userCodeLength; i++)
-            {
-                Console.Write(" ");
-            }
+            PrintHorizontalSpace(38 - userCodeLength);
             Console.Write("│  ");
             Console.Write(client.User.Nickname);
             int nicknameLength = client.User.Nickname.Length;
-            for(int i = 0; i < 38 - nicknameLength; i++)
-            {
-                Console.Write(" ");
-            }
+            PrintHorizontalSpace(38 - nicknameLength);
             Console.Write("│  ");
             Console.Write(client.HeartBeatTime.ToString());
             int heartBeatTimeLength = client.HeartBeatTime.ToString().Length;
-            for (int i = 0; i < 38 - heartBeatTimeLength; i++)
-            {
-                Console.Write(" ");
-            }
+            PrintHorizontalSpace(38 - heartBeatTimeLength);
             Console.Write("│");
             Console.WriteLine();
             if (isLastLine)
@@ -181,7 +262,6 @@ namespace SocketServerDemo.socket
             PrintHorizontalLine(colWidth);
             Console.Write("┐");
             Console.WriteLine();
-            Console.WriteLine("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
         }
 
         private static void PrintHorizontalLine(int width)

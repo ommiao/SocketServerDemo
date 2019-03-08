@@ -2,7 +2,7 @@
 
 namespace SocketServerDemo.socket.message.user
 {
-    class User : JavaBean
+    public class User : JavaBean
     {
 
         public string UserCode { get; set; }

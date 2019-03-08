@@ -3,7 +3,7 @@ using SocketServerDemo.utils;
 
 namespace SocketServerDemo.entity
 {
-    abstract class JavaBean
+    public abstract class JavaBean
     {
         public string toJson()
         {

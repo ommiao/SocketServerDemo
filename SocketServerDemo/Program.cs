@@ -39,7 +39,20 @@ namespace SocketServerDemo
             System.Threading.Thread thread = new System.Threading.Thread(begin);
             thread.Start();
             Logger.ShowSimpleMessage("Server started.", "Server started at Port:" + port + ".");
-            Logger.ShowCurrentUser();
+            while (true)
+            {
+                string order = Console.ReadLine();
+                if ("users".Equals(order))
+                {
+                    Logger.ShowCurrentUsers();
+                }
+                else if ("exit".Equals(order))
+                {
+                    ClientManager.Clear();
+                    Environment.Exit(0);
+                }
+            }
+            
         }
 
         public static void begin()
@@ -71,8 +84,8 @@ namespace SocketServerDemo
                         if (client != null && client.ConnectionTimeout())
                         {
                             newSocket.Close();
+                            Logger.ShowUserQuited(client.User);
                             ClientManager.RemoveClient(userCode);
-                            Console.WriteLine("User " + userCode + " is timeout.");
                             break;
                         }
                     }
@@ -100,7 +113,7 @@ namespace SocketServerDemo
                         string action = wrapper.GetAction();
                         if (ActionDefine.ACTION_HEART_BEAT.Equals(action))
                         {
-                            Console.WriteLine("@heartbeat: " + content);
+                            //Console.WriteLine("@heartbeat: " + content);
                             HeartBeatWrapper heartBeatWrapper = new HeartBeatWrapper(content);
                             userCode = heartBeatWrapper.GetWrapperBody().UserCode;
                             HandleHeartBeat(newSocket, heartBeatWrapper);
@@ -112,7 +125,6 @@ namespace SocketServerDemo
                         }
                         else if (ActionDefine.ACTION_USER_CHANGED.Equals(action))
                         {
-                            Console.WriteLine("User Changed: " + content);
                             HandleUserChanged(newSocket, new UserWrapper(content));
                         }
                     }
@@ -190,8 +202,8 @@ namespace SocketServerDemo
                 broadcastBody.Event = EventDefine.EVENT_USER_IN;
                 broadcastWrapper.SetBody(broadcastBody);
                 ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
-
-                Console.WriteLine("User Added. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
+                Logger.ShowUserAdded(user);
+                Logger.ShowCurrentUsers();
             }
             else if (body.isUserLogout())
             {
@@ -212,8 +224,8 @@ namespace SocketServerDemo
                 broadcastBody.Event = EventDefine.EVENT_USER_OUT;
                 broadcastWrapper.SetBody(broadcastBody);
                 ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
-
-                Console.WriteLine("User Quited. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
+                Logger.ShowUserQuited(user);
+                Logger.ShowCurrentUsers();
             }
         }
 

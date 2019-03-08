@@ -11,6 +11,11 @@ namespace SocketServerDemo.socket.service
 
         private static Dictionary<string, Client> allClients = new Dictionary<string, Client>();
 
+        public static void Clear()
+        {
+            allClients.Clear();
+        }
+
         public static Client GetClient(string userCode)
         {
             return allClients[userCode];
