@@ -65,16 +65,18 @@ namespace SocketServerDemo.socket
             PrintHorizontalLine(122);
             Console.Write("┤");
             Console.WriteLine();
-
-            Console.Write("│");
-            Console.Write("  ");
-            Console.Write(message);
-            PrintHorizontalSpace(120 - message.Length);
-            Console.Write("│");
-            Console.WriteLine();
-
+            while(message.Length > 0)
+            {
+                int lengthI = StringUtil.GetLengthContainsCn(message) > 118 ? 118 : StringUtil.GetLengthContainsCn(message);
+                string messageI = StringUtil.Substring(message, lengthI);
+                message = message.Remove(0, messageI.Length);
+                Console.Write("│  ");
+                Console.Write(messageI);
+                PrintHorizontalSpace(120 - StringUtil.GetLengthContainsCn(messageI));
+                Console.Write("│");
+                Console.WriteLine();
+            }
             PrintCommonBottom();
-
         }
 
         private static void PrintCommonBottom()
@@ -302,7 +304,7 @@ namespace SocketServerDemo.socket
         {
             for(int i = 0; i < width; i++)
             {
-                Console.Write("─");
+                Console.Write("-");
             }
         }
 

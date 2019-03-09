@@ -75,6 +75,7 @@ namespace SocketServerDemo
 
         public static void NewSocket(Socket newSocket)
         {
+            int exceptionTimes = 0;
             string userCode = null;
 
             while (true)
@@ -92,8 +93,8 @@ namespace SocketServerDemo
                         if (client != null && client.ConnectionTimeout())
                         {
                             newSocket.Close();
-                            Logger.ShowUserQuited(client.User);
                             ClientManager.RemoveClient(userCode);
+                            NotifyUserChanged(client.User, false);
                             break;
                         }
                     }
@@ -134,11 +135,20 @@ namespace SocketServerDemo
                             HandleUserChanged(newSocket, new UserWrapper(content));
                         }
                     }
+                    exceptionTimes = 0;
                 }
                 catch(Exception ex)
                 {
-                    Logger.ShowSimpleMessage("Exception Catched.", ex.Message);
-                    continue;
+                    Logger.ShowSimpleMessage("Exception Catched.", ex.Message.Trim());
+                    exceptionTimes++;
+                    if(exceptionTimes == 3)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        continue;
+                    }     
                 }
             }
         }
@@ -180,11 +190,12 @@ namespace SocketServerDemo
         {
             UserBody body = wrapper.GetWrapperBody();
             User user = body.ChangedUser;
-            if (!ClientManager.ContainsClient(user.UserCode))
+            Client client = ClientManager.GetClient(user.UserCode);
+            if (client == null)
             {
                 return;
             }
-            else
+            else if(client.User == null)
             {
                 ClientManager.SetUser(user.UserCode, user);
             }
@@ -199,16 +210,8 @@ namespace SocketServerDemo
                 replyWrapper.SetBody(replyBody);
                 string reply = replyWrapper.GetStringMessage();
                 socket.Send(Encoding.UTF8.GetBytes(reply));
-
                 //向其他用户广播
-                UserWrapper broadcastWrapper = new UserWrapper().Action(ActionDefine.ACTION_USER_CHANGED);
-                UserBody broadcastBody = new UserBody();
-                broadcastBody.ChangedUser = body.ChangedUser;
-                broadcastBody.Event = EventDefine.EVENT_USER_IN;
-                broadcastWrapper.SetBody(broadcastBody);
-                ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
-                Logger.ShowUserAdded(user);
-                Logger.ShowCurrentUsers();
+                NotifyUserChanged(body.ChangedUser, true);
             }
             else if (body.isUserLogout())
             {
@@ -221,17 +224,28 @@ namespace SocketServerDemo
                 replyWrapper.SetBody(replyBody);
                 string reply = replyWrapper.GetStringMessage();
                 socket.Send(Encoding.UTF8.GetBytes(reply));
-
                 //向其他用户广播
-                UserWrapper broadcastWrapper = new UserWrapper().Action(ActionDefine.ACTION_USER_CHANGED);
-                UserBody broadcastBody = new UserBody();
-                broadcastBody.ChangedUser = body.ChangedUser;
-                broadcastBody.Event = EventDefine.EVENT_USER_OUT;
-                broadcastWrapper.SetBody(broadcastBody);
-                ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
-                Logger.ShowUserQuited(user);
-                Logger.ShowCurrentUsers();
+                NotifyUserChanged(body.ChangedUser, false);
             }
+        }
+
+        private static void NotifyUserChanged(User user, bool add)
+        {
+            UserWrapper broadcastWrapper = new UserWrapper().Action(ActionDefine.ACTION_USER_CHANGED);
+            UserBody broadcastBody = new UserBody();
+            broadcastBody.ChangedUser = user;
+            broadcastBody.Event = add ? EventDefine.EVENT_USER_IN : EventDefine.EVENT_USER_OUT;
+            broadcastWrapper.SetBody(broadcastBody);
+            ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
+            if (add)
+            {
+                Logger.ShowUserAdded(user);
+            }
+            else
+            {
+                Logger.ShowUserQuited(user);
+            }
+            Logger.ShowCurrentUsers();
         }
 
     }
