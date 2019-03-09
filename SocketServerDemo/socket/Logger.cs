@@ -1,5 +1,6 @@
 ﻿using SocketServerDemo.socket.message.user;
 using SocketServerDemo.socket.service;
+using SocketServerDemo.utils;
 using System;
 using System.Collections.Generic;
 
@@ -10,6 +11,45 @@ namespace SocketServerDemo.socket
         public static void Init()
         {
             Console.SetWindowSize(130, 32);
+        }
+
+        public static void ShowMessageReceived(User user, string message)
+        {
+            PrintMessageTitle("Message Received.", 3);
+            PrintTitleLine(new string[] { "UserCode", "Nickname", "Message" });
+            int lines = StringUtil.GetLengthContainsCn(message) / 36 + 1;
+            int middleLine = (lines - 1) / 2;
+            for(int i = 0; i < lines; i++)
+            {
+                int lengthI = StringUtil.GetLengthContainsCn(message) > 36 ? 36 : StringUtil.GetLengthContainsCn(message);
+                string msgI = StringUtil.Substring(message, lengthI);
+                message = message.Remove(0, msgI.Length);
+                if (i == middleLine)
+                {
+                    Console.Write("│  ");
+                    Console.Write(user.UserCode);
+                    int userCodeLength = user.UserCode.Length;
+                    PrintHorizontalSpace(38 - userCodeLength);
+                    Console.Write("│  ");
+                    Console.Write(user.Nickname);
+                    int nicknameLength = user.Nickname.Length;
+                    PrintHorizontalSpace(38 - nicknameLength);
+                }
+                else
+                {
+                    Console.Write("│");
+                    PrintHorizontalSpace(40);
+                    Console.Write("│");
+                    PrintHorizontalSpace(40);
+                }
+                Console.Write("│  ");
+                Console.Write(msgI);
+                int length = StringUtil.GetLengthContainsCn(msgI);
+                PrintHorizontalSpace(38 - length);
+                Console.Write("│");
+                Console.WriteLine();
+            }
+            PrintMessageBottom();
         }
 
         public static void ShowSimpleMessage(string message)
@@ -33,12 +73,17 @@ namespace SocketServerDemo.socket
             Console.Write("│");
             Console.WriteLine();
 
+            PrintCommonBottom();
+
+        }
+
+        private static void PrintCommonBottom()
+        {
             Console.Write("└");
             PrintHorizontalLine(122);
             Console.Write("┘");
             Console.WriteLine();
             Console.WriteLine();
-
         }
 
         public static void ShowUserAdded(User user)
@@ -89,6 +134,11 @@ namespace SocketServerDemo.socket
                 Console.Write("│");
                 Console.WriteLine();
             }
+            PrintMessageBottom();
+        }
+
+        private static void PrintMessageBottom()
+        {
             Console.Write("└");
             PrintHorizontalLine(40);
             Console.Write("┴");
@@ -153,15 +203,7 @@ namespace SocketServerDemo.socket
                 PrintHorizontalSpace(40);
                 Console.Write("│");
                 Console.WriteLine();
-                Console.Write("└");
-                PrintHorizontalLine(40);
-                Console.Write("┴");
-                PrintHorizontalLine(40);
-                Console.Write("┴");
-                PrintHorizontalLine(40);
-                Console.Write("┘");
-                Console.WriteLine();
-                Console.WriteLine();
+                PrintMessageBottom();
             }
         }
 
@@ -183,15 +225,7 @@ namespace SocketServerDemo.socket
             Console.WriteLine();
             if (isLastLine)
             {
-                Console.Write("└");
-                PrintHorizontalLine(40);
-                Console.Write("┴");
-                PrintHorizontalLine(40);
-                Console.Write("┴");
-                PrintHorizontalLine(40);
-                Console.Write("┘");
-                Console.WriteLine();
-                Console.WriteLine();
+                PrintMessageBottom();
             }
             else
             {

@@ -67,6 +67,7 @@
     <Compile Include="socket\service\Client.cs" />
     <Compile Include="socket\service\ClientManager.cs" />
     <Compile Include="utils\JsonUtil.cs" />
+    <Compile Include="utils\StringUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

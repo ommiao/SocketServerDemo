@@ -51,6 +51,14 @@ namespace SocketServerDemo
                     ClientManager.Clear();
                     Environment.Exit(0);
                 }
+                else if ("clear".Equals(order))
+                {
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.WriteLine("Unexpected Order!");
+                }
             }
             
         }
@@ -113,14 +121,12 @@ namespace SocketServerDemo
                         string action = wrapper.GetAction();
                         if (ActionDefine.ACTION_HEART_BEAT.Equals(action))
                         {
-                            //Console.WriteLine("@heartbeat: " + content);
                             HeartBeatWrapper heartBeatWrapper = new HeartBeatWrapper(content);
                             userCode = heartBeatWrapper.GetWrapperBody().UserCode;
                             HandleHeartBeat(newSocket, heartBeatWrapper);
                         }
                         else if(ActionDefine.ACTION_MESSAGE_SEND.Equals(action))
                         {
-                            Console.WriteLine("Message from Client: " + content);
                             HandleMessageReceived(newSocket, new MessageWrapper(content));
                         }
                         else if (ActionDefine.ACTION_USER_CHANGED.Equals(action))
@@ -131,7 +137,7 @@ namespace SocketServerDemo
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Logger.ShowSimpleMessage("Exception Catched.", ex.Message);
                     continue;
                 }
             }
@@ -162,13 +168,12 @@ namespace SocketServerDemo
             //消息分发
             MessageBody body = wrapper.GetWrapperBody();
             User user = body.User;
+            Logger.ShowMessageReceived(user, body.Content);
             MessageWrapper broadcastWrapper = new MessageWrapper().Action(ActionDefine.ACTION_MESSAGE_SEND);
             MessageBody broadcastBody = body;
             broadcastWrapper.SetBody(broadcastBody);
             ClientManager.DistributeMessage(user.UserCode, broadcastWrapper.GetStringMessage());
             ClientManager.RefreshHeartBeatTime(user.UserCode);
-
-            Console.WriteLine("Message Distributed. UserCode is {0}, Nickname is {1}.", user.UserCode, user.Nickname);
         }
 
         private static void HandleUserChanged(Socket socket, UserWrapper wrapper)
