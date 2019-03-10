@@ -8,6 +8,7 @@ using SocketServerDemo.socket;
 using SocketServerDemo.socket.message.user;
 using SocketServerDemo.socket.service;
 using SocketServerDemo.socket.message.heartbeat;
+using System.Threading;
 
 namespace SocketServerDemo
 {
@@ -36,8 +37,10 @@ namespace SocketServerDemo
             int port = 2692;
             socket.Bind(new IPEndPoint(IPAddress.Any, port));
             socket.Listen(100);
-            System.Threading.Thread thread = new System.Threading.Thread(begin);
-            thread.Start();
+            Thread listenThread = new Thread(begin);
+            listenThread.Start();
+            Thread cleanThread = new Thread(clean);
+            cleanThread.Start();
             Logger.ShowSimpleMessage("Server started.", "Server started at Port:" + port + ".");
             while (true)
             {
@@ -73,6 +76,34 @@ namespace SocketServerDemo
             }
         }
 
+        public static void clean()
+        {
+            while (true)
+            {
+                Thread.Sleep(20 * 1000);
+                try
+                {
+                    int count = 0;              
+                    foreach(var client in ClientManager.GetAllClients())
+                    {
+                        if (client != null && client.User != null && client.ConnectionTimeout())
+                        {
+                            User user = client.User;
+                            ClientManager.RemoveClient(client.UserCode);
+                            NotifyUserChanged(user, false);
+                            count++;
+                        }
+                    }
+                    Logger.ShowSimpleMessage("Clean Thread is Working.", "[" + count + "] clients have been cleaned.");
+                }
+                catch(Exception ex)
+                {
+                    Logger.ShowSimpleMessage("Exception Catched.", ex.Message.Trim());
+                    continue;
+                }
+            }
+        }
+
         public static void NewSocket(Socket newSocket)
         {
             int exceptionTimes = 0;
@@ -103,12 +134,6 @@ namespace SocketServerDemo
                         }
                         else
                         {
-                            Client client = ClientManager.GetClient(userCode);
-                            if (client != null && client.User != null)
-                            {
-                                ClientManager.RemoveClient(userCode);
-                                NotifyUserChanged(client.User, false);
-                            }
                             break;
                         }
                     }
@@ -151,12 +176,6 @@ namespace SocketServerDemo
                     exceptionTimes++;
                     if(exceptionTimes == 3)
                     {
-                        Client client = ClientManager.GetClient(userCode);
-                        if (client != null && client.User != null)
-                        {
-                            ClientManager.RemoveClient(userCode);
-                            NotifyUserChanged(client.User, false);
-                        }
                         break;
                     }
                     else
