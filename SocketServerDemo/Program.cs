@@ -80,31 +80,39 @@ namespace SocketServerDemo
 
             while (true)
             {
-                if(userCode != null)
-                {
-                    if (newSocket != null)
-                    {
-                        if (!ClientManager.ContainsClient(userCode))
-                        {
-                            newSocket.Close();
-                            break;
-                        }
-                        Client client = ClientManager.GetClient(userCode);
-                        if (client != null && client.ConnectionTimeout())
-                        {
-                            newSocket.Close();
-                            ClientManager.RemoveClient(userCode);
-                            NotifyUserChanged(client.User, false);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                
                 try
                 {
+                    if (userCode != null)
+                    {
+                        if (newSocket != null)
+                        {
+                            if (!ClientManager.ContainsClient(userCode))
+                            {
+                                newSocket.Close();
+                                break;
+                            }
+                            Client client = ClientManager.GetClient(userCode);
+                            if (client != null && client.ConnectionTimeout())
+                            {
+                                newSocket.Close();
+                                ClientManager.RemoveClient(userCode);
+                                NotifyUserChanged(client.User, false);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Client client = ClientManager.GetClient(userCode);
+                            if (client != null && client.User != null)
+                            {
+                                ClientManager.RemoveClient(userCode);
+                                NotifyUserChanged(client.User, false);
+                            }
+                            break;
+                        }
+                    }
+
                     byte[] by = new byte[1024];
                     int length = 0;
                     //读取字符串
@@ -143,6 +151,12 @@ namespace SocketServerDemo
                     exceptionTimes++;
                     if(exceptionTimes == 3)
                     {
+                        Client client = ClientManager.GetClient(userCode);
+                        if (client != null && client.User != null)
+                        {
+                            ClientManager.RemoveClient(userCode);
+                            NotifyUserChanged(client.User, false);
+                        }
                         break;
                     }
                     else

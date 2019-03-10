@@ -8,6 +8,37 @@ namespace SocketServerDemo.socket
 {
     public class Logger
     {
+
+        //private const string LEFT_TOP      = "┌";
+        //private const string TOP           = "┬";
+        //private const string RIGHT_TOP     = "┐";
+        //private const string LEFT          = "├";
+        //private const string CENTER        = "┼";
+        //private const string RIGHT         = "┤";
+        //private const string LEFT_BOTTOM   = "└";
+        //private const string BOTTOM        = "┴";
+        //private const string RIGHT_BOTTOM  = "┘";
+        //private const string LINE_H        = "─";
+        //private const string LINE_V        = "│";
+
+        private const string LEFT_TOP = "|";
+        private const string TOP = "-";
+        private const string RIGHT_TOP = "|";
+        private const string LEFT = "|";
+        private const string CENTER = "|";
+        private const string RIGHT = "|";
+        private const string LEFT_BOTTOM = "|";
+        private const string BOTTOM = "-";
+        private const string RIGHT_BOTTOM = "|";
+        private const string LINE_H = "-";
+        private const string LINE_V = "|";
+
+        private const int LINE_MAX = 122;
+        private const int LINE_CONTENT_MAX = 118;
+        private const int COLUMN_LENGTH = 40;
+        private const int COLUMN_CONTENT_MAX = 36;
+        private const int COLLUMN_CONTENT_INDENT = 2;
+
         public static void Init()
         {
             Console.SetWindowSize(130, 32);
@@ -17,36 +48,42 @@ namespace SocketServerDemo.socket
         {
             PrintMessageTitle("Message Received.", 3);
             PrintTitleLine(new string[] { "UserCode", "Nickname", "Message" });
-            int lines = StringUtil.GetLengthContainsCn(message) / 36 + 1;
+            int lines = StringUtil.GetLengthContainsCn(message) / COLUMN_CONTENT_MAX + 1;
             int middleLine = (lines - 1) / 2;
             for(int i = 0; i < lines; i++)
             {
-                int lengthI = StringUtil.GetLengthContainsCn(message) > 36 ? 36 : StringUtil.GetLengthContainsCn(message);
+                int lengthI = StringUtil.GetLengthContainsCn(message) > COLUMN_CONTENT_MAX ? COLUMN_CONTENT_MAX : StringUtil.GetLengthContainsCn(message);
                 string msgI = StringUtil.Substring(message, lengthI);
                 message = message.Remove(0, msgI.Length);
                 if (i == middleLine)
                 {
-                    Console.Write("│  ");
+                    Console.Write(LINE_V);
+                    PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
                     Console.Write(user.UserCode);
                     int userCodeLength = user.UserCode.Length;
-                    PrintHorizontalSpace(38 - userCodeLength);
-                    Console.Write("│  ");
+                    PrintHorizontalSpace(COLUMN_CONTENT_MAX - userCodeLength);
+                    PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+                    Console.Write(LINE_V);
+                    PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
                     Console.Write(user.Nickname);
                     int nicknameLength = user.Nickname.Length;
-                    PrintHorizontalSpace(38 - nicknameLength);
+                    PrintHorizontalSpace(COLUMN_CONTENT_MAX - nicknameLength);
+                    PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
                 }
                 else
                 {
-                    Console.Write("│");
-                    PrintHorizontalSpace(40);
-                    Console.Write("│");
-                    PrintHorizontalSpace(40);
+                    Console.Write(LINE_V);
+                    PrintHorizontalSpace(COLUMN_LENGTH);
+                    Console.Write(LINE_V);
+                    PrintHorizontalSpace(COLUMN_LENGTH);
                 }
-                Console.Write("│  ");
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
                 Console.Write(msgI);
                 int length = StringUtil.GetLengthContainsCn(msgI);
-                PrintHorizontalSpace(38 - length);
-                Console.Write("│");
+                PrintHorizontalSpace(COLUMN_CONTENT_MAX - length);
+                PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+                Console.Write(LINE_V);
                 Console.WriteLine();
             }
             PrintMessageBottom();
@@ -61,19 +98,21 @@ namespace SocketServerDemo.socket
         {
             PrintCommonTitle(title);
 
-            Console.Write("├");
-            PrintHorizontalLine(122);
-            Console.Write("┤");
+            Console.Write(LEFT);
+            PrintHorizontalLine(LINE_MAX);
+            Console.Write(RIGHT);
             Console.WriteLine();
             while(message.Length > 0)
             {
-                int lengthI = StringUtil.GetLengthContainsCn(message) > 118 ? 118 : StringUtil.GetLengthContainsCn(message);
+                int lengthI = StringUtil.GetLengthContainsCn(message) > LINE_CONTENT_MAX ? LINE_CONTENT_MAX : StringUtil.GetLengthContainsCn(message);
                 string messageI = StringUtil.Substring(message, lengthI);
                 message = message.Remove(0, messageI.Length);
-                Console.Write("│  ");
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
                 Console.Write(messageI);
-                PrintHorizontalSpace(120 - StringUtil.GetLengthContainsCn(messageI));
-                Console.Write("│");
+                PrintHorizontalSpace(LINE_CONTENT_MAX - StringUtil.GetLengthContainsCn(messageI));
+                PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+                Console.Write(LINE_V);
                 Console.WriteLine();
             }
             PrintCommonBottom();
@@ -81,9 +120,9 @@ namespace SocketServerDemo.socket
 
         private static void PrintCommonBottom()
         {
-            Console.Write("└");
-            PrintHorizontalLine(122);
-            Console.Write("┘");
+            Console.Write(LEFT_BOTTOM);
+            PrintHorizontalLine(LINE_MAX);
+            Console.Write(RIGHT_BOTTOM);
             Console.WriteLine();
             Console.WriteLine();
         }
@@ -102,52 +141,39 @@ namespace SocketServerDemo.socket
         {
             PrintMessageTitle("User Changed.", 3);
             PrintTitleLine(new string[]{ "UserCode", "Nickname", "Changed Type" });
-            if (add)
-            {
-                Console.Write("│  ");
-                Console.Write(user.UserCode);
-                int userCodeLength = user.UserCode.Length;
-                PrintHorizontalSpace(38 - userCodeLength);
-                Console.Write("│  ");
-                Console.Write(user.Nickname);
-                int nicknameLength = user.Nickname.Length;
-                PrintHorizontalSpace(38 - nicknameLength);
-                Console.Write("│  ");
-                Console.Write("User Added.");
-                int length = "User Added.".Length;
-                PrintHorizontalSpace(38 - length);
-                Console.Write("│");
-                Console.WriteLine();
-            }
-            else
-            {
-                Console.Write("│  ");
-                Console.Write(user.UserCode);
-                int userCodeLength = user.UserCode.Length;
-                PrintHorizontalSpace(38 - userCodeLength);
-                Console.Write("│  ");
-                Console.Write(user.Nickname);
-                int nicknameLength = user.Nickname.Length;
-                PrintHorizontalSpace(38 - nicknameLength);
-                Console.Write("│  ");
-                Console.Write("User Quited.");
-                int length = "User Quited.".Length;
-                PrintHorizontalSpace(38 - length);
-                Console.Write("│");
-                Console.WriteLine();
-            }
+            string type = add ? "User Added." : "User Quited.";
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(user.UserCode);
+            int userCodeLength = user.UserCode.Length;
+            PrintHorizontalSpace(COLUMN_CONTENT_MAX - userCodeLength);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(user.Nickname);
+            int nicknameLength = user.Nickname.Length;
+            PrintHorizontalSpace(COLUMN_CONTENT_MAX - nicknameLength);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write("User Added.");
+            int length = "User Added.".Length;
+            PrintHorizontalSpace(COLUMN_CONTENT_MAX - length);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
+            Console.WriteLine();
             PrintMessageBottom();
         }
 
         private static void PrintMessageBottom()
         {
-            Console.Write("└");
-            PrintHorizontalLine(40);
-            Console.Write("┴");
-            PrintHorizontalLine(40);
-            Console.Write("┴");
-            PrintHorizontalLine(40);
-            Console.Write("┘");
+            Console.Write(LEFT_BOTTOM);
+            PrintHorizontalLine(COLUMN_LENGTH);
+            Console.Write(BOTTOM);
+            PrintHorizontalLine(COLUMN_LENGTH);
+            Console.Write(BOTTOM);
+            PrintHorizontalLine(COLUMN_LENGTH);
+            Console.Write(RIGHT_BOTTOM);
             Console.WriteLine();
             Console.WriteLine();
         }
@@ -158,26 +184,27 @@ namespace SocketServerDemo.socket
             int spaces = 3 - length;
             for(int i = 0; i < length; i++)
             {
-                Console.Write("│");
-                Console.Write("  ");
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
                 Console.Write(titles[i]);
-                PrintHorizontalSpace(38 - titles[i].Length);
+                PrintHorizontalSpace(COLUMN_CONTENT_MAX - titles[i].Length);
+                PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             }
             for (int i = 0; i < spaces; i++)
             {
-                Console.Write("│");
-                PrintHorizontalSpace(40);
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLUMN_LENGTH);
             }
-            Console.Write("│");
+            Console.Write(LINE_V);
             Console.WriteLine();
 
-            Console.Write("├");
-            PrintHorizontalLine(40);
-            Console.Write("┼");
-            PrintHorizontalLine(40);
-            Console.Write("┼");
-            PrintHorizontalLine(40);
-            Console.Write("┤");
+            Console.Write(LEFT);
+            PrintHorizontalLine(COLUMN_LENGTH);
+            Console.Write(CENTER);
+            PrintHorizontalLine(COLUMN_LENGTH);
+            Console.Write(CENTER);
+            PrintHorizontalLine(COLUMN_LENGTH);
+            Console.Write(RIGHT);
             Console.WriteLine();
         }
 
@@ -197,13 +224,13 @@ namespace SocketServerDemo.socket
             }
             else
             {
-                Console.Write("│");
-                PrintHorizontalSpace(40);
-                Console.Write("│");
-                PrintHorizontalSpace(40);
-                Console.Write("│");
-                PrintHorizontalSpace(40);
-                Console.Write("│");
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLUMN_LENGTH);
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLUMN_LENGTH);
+                Console.Write(LINE_V);
+                PrintHorizontalSpace(COLUMN_LENGTH);
+                Console.Write(LINE_V);
                 Console.WriteLine();
                 PrintMessageBottom();
             }
@@ -211,19 +238,25 @@ namespace SocketServerDemo.socket
 
         private static void PrintUserLine(Client client, bool isLastLine)
         {
-            Console.Write("│  ");
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             Console.Write(client.User.UserCode);
             int userCodeLength = client.User.UserCode.Length;
-            PrintHorizontalSpace(38 - userCodeLength);
-            Console.Write("│  ");
+            PrintHorizontalSpace(COLUMN_CONTENT_MAX - userCodeLength);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             Console.Write(client.User.Nickname);
             int nicknameLength = client.User.Nickname.Length;
-            PrintHorizontalSpace(38 - nicknameLength);
-            Console.Write("│  ");
+            PrintHorizontalSpace(COLUMN_CONTENT_MAX - nicknameLength);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             Console.Write(client.HeartBeatTime.ToString());
             int heartBeatTimeLength = client.HeartBeatTime.ToString().Length;
-            PrintHorizontalSpace(38 - heartBeatTimeLength);
-            Console.Write("│");
+            PrintHorizontalSpace(COLUMN_CONTENT_MAX - heartBeatTimeLength);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
             Console.WriteLine();
             if (isLastLine)
             {
@@ -231,13 +264,13 @@ namespace SocketServerDemo.socket
             }
             else
             {
-                Console.Write("├");
-                PrintHorizontalLine(40);
-                Console.Write("┼");
-                PrintHorizontalLine(40);
-                Console.Write("┼");
-                PrintHorizontalLine(40);
-                Console.Write("┤");
+                Console.Write(LEFT);
+                PrintHorizontalLine(COLUMN_LENGTH);
+                Console.Write(CENTER);
+                PrintHorizontalLine(COLUMN_LENGTH);
+                Console.Write(CENTER);
+                PrintHorizontalLine(COLUMN_LENGTH);
+                Console.Write(RIGHT);
                 Console.WriteLine();
             }
         }
@@ -247,56 +280,58 @@ namespace SocketServerDemo.socket
 
             PrintCommonTitle(title);
 
-            Console.Write("├");
-            int widthPerGrid = 40 * 3 / contentColNumber;
+            Console.Write(LEFT);
+            int widthPerGrid = COLUMN_LENGTH * 3 / contentColNumber;
             for(int i = 0; i < contentColNumber - 1; i++)
             {
                 PrintHorizontalLine(widthPerGrid);
-                Console.Write("┬");
+                Console.Write(TOP);
             }
             PrintHorizontalLine(widthPerGrid);
-            Console.Write("┤");
+            Console.Write(RIGHT);
             Console.WriteLine();
         }
 
         private static void PrintCommonTitle(string title)
         {
-            Console.Write("┌");
-            PrintHorizontalLine(122);
-            Console.Write("┐");
+            Console.Write(LEFT_TOP);
+            PrintHorizontalLine(LINE_MAX);
+            Console.Write(RIGHT_TOP);
             Console.WriteLine();
 
-            Console.Write("│");
-            Console.Write("  ");
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             Console.Write(title);
-            PrintHorizontalSpace(120 - title.Length);
-            Console.Write("│");
+            PrintHorizontalSpace(LINE_CONTENT_MAX - title.Length);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
             Console.WriteLine();
 
-            Console.Write("├");
-            PrintHorizontalLine(122);
-            Console.Write("┤");
+            Console.Write(LEFT);
+            PrintHorizontalLine(LINE_MAX);
+            Console.Write(RIGHT);
             Console.WriteLine();
 
-            Console.Write("│");
-            Console.Write("  ");
+            Console.Write(LINE_V);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             string time = "Current Time: " + DateTime.Now.ToString();
             Console.Write(time);
-            PrintHorizontalSpace(120 - time.Length);
-            Console.Write("│");
+            PrintHorizontalSpace(LINE_CONTENT_MAX - time.Length);
+            PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
+            Console.Write(LINE_V);
             Console.WriteLine();
         }
 
         private static void PrintTopLine(int colWidth, int colNumber)
         {
-            Console.Write("┌");
+            Console.Write(LEFT_TOP);
             for(int i = 0; i < colNumber - 1; i++)
             {
                 PrintHorizontalLine(colWidth);
-                Console.Write("┬");
+                Console.Write(TOP);
             }
             PrintHorizontalLine(colWidth);
-            Console.Write("┐");
+            Console.Write(RIGHT_TOP);
             Console.WriteLine();
         }
 
@@ -304,7 +339,7 @@ namespace SocketServerDemo.socket
         {
             for(int i = 0; i < width; i++)
             {
-                Console.Write("-");
+                Console.Write(LINE_H);
             }
         }
 
