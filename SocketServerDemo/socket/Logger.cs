@@ -156,8 +156,8 @@ namespace SocketServerDemo.socket
             PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             Console.Write(LINE_V);
             PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
-            Console.Write("User Added.");
-            int length = "User Added.".Length;
+            Console.Write(type);
+            int length = type.Length;
             PrintHorizontalSpace(COLUMN_CONTENT_MAX - length);
             PrintHorizontalSpace(COLLUMN_CONTENT_INDENT);
             Console.Write(LINE_V);
